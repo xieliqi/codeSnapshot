@@ -1,7 +1,12 @@
 package com.xxx.bootstrap;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class Main {
 
@@ -9,16 +14,19 @@ public class Main {
 
 	private static volatile boolean running = true;
 
-	public static void main(String[] args) {
-		// final RoseAppContext roseContext = new RoseAppContext();
+	public static void main(String[] args) throws IOException {
+		System.out.println(System.getenv());
+		System.out.println(Main.class.getClass().getResource("/applicationContext.xml").getPath());
+		//System.out.println(IOUtils.readLines(Main.class.getResourceAsStream("/applicationContext.xml")));
+		@SuppressWarnings("resource")
+		final FileSystemXmlApplicationContext appContext = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
 		try {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					try {
-						// roseContext.stop();
-						logger.info("RoseAppContext stopped!");
-					}
-					catch (Throwable t) {
+						appContext.stop();
+						logger.info("SpringAppContext stopped!");
+					} catch (Throwable t) {
 						logger.error(t.getMessage(), t);
 					}
 					synchronized (Main.class) {
@@ -28,16 +36,10 @@ public class Main {
 				}
 			});
 
-			// roseContext.start();
-			// logger.info("RoseAppContext started!");
-			// System.out.println(new
-			// SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]").format(new Date()) +
-			// " Video Converter service started!");
-			// VideoConvertService service =
-			// roseContext.getBean(VideoConvertService.class);
-			// service.service();
-		}
-		catch (RuntimeException e) {
+			appContext.start();
+			System.out.println(new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]")
+					.format(new Date()) + "java application started!");
+		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			System.exit(1);
 		}
@@ -45,8 +47,7 @@ public class Main {
 			while (running) {
 				try {
 					Main.class.wait();
-				}
-				catch (Throwable e) {
+				} catch (Throwable e) {
 				}
 			}
 		}

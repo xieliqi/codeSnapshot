@@ -5,7 +5,7 @@ cd ..
 DEPLOY_DIR=`pwd`
 CONF_DIR=$DEPLOY_DIR/conf
 
-SERVER_NAME="video convert service"
+SERVER_NAME="java application"
 
 PIDS=`ps  --no-heading -C java -f --width 1000 | grep "$CONF_DIR" |awk '{print $2}'`
 if [ -n "$PIDS" ]; then
@@ -49,7 +49,7 @@ else
 fi
 
 echo -e "Starting the $SERVER_NAME ...\c"
-nohup java $JAVA_OPTS $JAVA_MEM_OPTS $JAVA_DEBUG_OPTS $JAVA_JMX_OPTS -classpath $CONF_DIR:$LIB_JARS com.chaoxing.cvs.bootstrap.Main > $STDOUT_FILE 2>&1 &
+nohup java $JAVA_OPTS $JAVA_MEM_OPTS $JAVA_DEBUG_OPTS $JAVA_JMX_OPTS -classpath $CONF_DIR:$LIB_JARS com.xxx.bootstrap.Main > $STDOUT_FILE 2>&1 &
 
 COUNT=0
 while [ $COUNT -lt 1 ]; do    
