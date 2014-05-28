@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	default-lazy-init="true">
+
+	<description>Quartz的定时任务配置 集群配置</description>
+
+	<!-- Quartz集成工厂 -->
+	<bean id="quartzScheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+		lazy-init="false">
+		<!-- Triggers集成 -->
+		<property name="triggers">
+			<list>
+				<ref bean="triggerLiveTelecastFlow" />
+				<ref bean="triggerWeChatInfo" />
+				<ref bean="triggerAppGroupInfo" />
+				<ref bean="triggerPlanCounterJob" />
+				<ref bean="triggerFrequency" />
+				<ref bean="triggerFrequencyPlaylist" />
+				<ref bean="triggerColumnIdCategory" />
+				<ref bean="triggerProgramHome" />
+				<ref bean="triggerSearchSettings" />
+				<ref bean="triggerVersionSet" />
+				<ref bean="triggerCover" />
+				<ref bean="triggerProgramsClassJob" />
+				<ref bean="triggerColumn" />
+				<ref bean="triggerAudioBooks" />
+				<!-- <ref bean="triggerFragment" /> -->
+				<ref bean="triggerAddFragment" />
+				<ref bean="triggerAddCover" />
+				<ref bean="triggerDelInfo" />
+				<ref bean="triggerHappyLibrary" />
+				<ref bean="triggerIntercut" />
+				<ref bean="triggerPackage" />
+				<ref bean="triggerPlatform" />
+				<ref bean="triggerTimeaudio" />
+				<ref bean="triggerAddHappyLibrary" />
+				<ref bean="triggerAddIntercut" />
+				<ref bean="triggerAddPackage" />
+				<ref bean="triggerAddPlatform" />
+				<ref bean="triggerPackageRandom" />
+				<ref bean="triggerUpdateFragmentByBeginDate" />
+			</list>
+		</property>
+		<!-- Quartz配置 -->
+		<!-- quartz配置文件路径 -->
+		<property name="configLocation"
+			value="classpath:config/quartz/quartz-cluster.properties" />
+
+		<!-- 启动时延期2秒开始任务 -->
+		<property name="startupDelay" value="2" />
+		<!-- Job接受applicationContext的成员变量名 -->
+		<property name="applicationContextSchedulerContextKey" value="applicationContext" />
+	</bean>
+
+	<!-- 同步直播流数据 -->
+	<bean id="triggerLiveTelecastFlow" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="LiveTelecastFlowJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 版本信息 -->
+	<bean id="triggerVersionSet" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="VersionInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 封面信息 -->
+	<bean id="triggerCover" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisCoverJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每天23点45分执行一次 -->
+
+		<property name="cronExpression" value="0 0 04 * * ?"></property>
+
+		<!--<property name="cronExpression" value="0 16 14 * * ?"></property> -->
+	</bean>
+	<!-- 节目大全：定时任务触发 -->
+	<bean id="triggerProgramsClassJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="programsClassJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 档定时器 -->
+	<bean id="triggerColumn" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="ColumnInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每天23点45分执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+
+		<!--<property name="cronExpression" value="0 56 15 * * ?"></property> -->
+	</bean>
+
+	<!-- 有声读物定时器 -->
+	<bean id="triggerAudioBooks" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="audioBooksJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 期信息定时器 -->
+	<bean id="triggerFragment" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="FragmentInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每天23点45分执行一次 -->
+
+		<property name="cronExpression" value="0 10 04 * * ?"></property>
+
+		<!-- <property name="cronExpression" value="0 58 15 * * ?"></property> -->
+	</bean>
+	<!-- 期增量定时器 -->
+	<bean id="triggerAddFragment" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddFragmentInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 封面增量定时器 -->
+	<bean id="triggerAddCover" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddCoverInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 删除档和期信息定时器 -->
+	<bean id="triggerDelInfo" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="DelInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+
+	<!-- 乐库全量信息定时器 -->
+	<bean id="triggerHappyLibrary" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisHappyLibraryJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 40 04 * * ?"></property>
+	</bean>
+	<!-- 插播全量信息定时器 -->
+	<bean id="triggerIntercut" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisIntercutInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 20 05 * * ?"></property>
+	</bean>
+	<!-- 包全量信息定时器 -->
+	<bean id="triggerPackage" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisPackageInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 55 04 * * ?"></property>
+	</bean>
+	<!-- 台宣全量信息定时器 -->
+	<bean id="triggerPlatform" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisPlatformInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="30 41 05 * * ?"></property>
+	</bean>
+	<!-- 报时全量信息定时器 -->
+	<bean id="triggerTimeaudio" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisTimeaudioInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 55 05 * * ?"></property>
+	</bean>
+	<!-- 乐库增量信息定时器 -->
+	<bean id="triggerAddHappyLibrary" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddHappyLibraryJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 插播增量信息定时器 -->
+	<bean id="triggerAddIntercut" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddIntercutInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 包增量信息定时器 -->
+	<bean id="triggerAddPackage" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddPackageInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 台宣增量信息定时器 -->
+	<bean id="triggerAddPlatform" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AddPlatformInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 异常包列表定时器 -->
+	<bean id="triggerPackageRandom" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="RedisPackageRandomJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- 节目源首页 -->
+	<bean id="triggerProgramHome" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="programHomeJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+
+	<!-- 频道列表 -->
+	<bean id="triggerFrequency" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="frequencyJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+
+	<!-- 频道播单列表 -->
+	<bean id="triggerFrequencyPlaylist" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="frequencyPlayListJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 0 0/1 * * ?"></property>
+	</bean>
+
+	<!-- 按类型的档的聚类 频道类型化使用 -->
+	<bean id="triggerColumnIdCategory" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="ColumnIdCategoryJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 05 01 * * ?"></property>
+	</bean>
+	<!-- 按类型的档的聚类 频道类型化使用 -->
+	<bean id="triggerSearchSettings" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="SearchSettingsJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- plan job -->
+	<bean id="triggerPlanCounterJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="planCounterJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/1 * * * ?"></property>
+	</bean>
+	<!-- 微信接口 -->
+	<bean id="triggerWeChatInfo" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="WeChatInfoJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	<!-- appGroup接口 -->
+	<bean id="triggerAppGroupInfo" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="AppGroupJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+		<!-- 期按生效日期更新接口 -->
+	<bean id="triggerUpdateFragmentByBeginDate" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass"
+					value="com.autoradio.kaola.task.QuartzIntegrationJobDetail" />
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="targetBeanName" value="updateFragmentByBeginDateJob" />
+						<entry key="targetMethod" value="start" />
+					</map>
+				</property>
+				<!-- fail-over节点重新执行之前所有失败或未执行的任务, 默认为false. -->
+				<property name="requestsRecovery" value="false" />
+			</bean>
+		</property>
+		<!-- 每5分钟执行一次 -->
+		<property name="cronExpression" value="0 05 0 * * ?"></property>
+	</bean>
+	
+</beans>
